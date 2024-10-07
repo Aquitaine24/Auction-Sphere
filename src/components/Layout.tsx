@@ -1,7 +1,7 @@
 // Layout.tsx
 
 import React from "react";
-import DashboardHeader from "./LayoutHeader";
+import DashboardHeader from "./LayoutHeader"; // or your header component
 
 interface LayoutProps {
   hideHeader?: boolean;

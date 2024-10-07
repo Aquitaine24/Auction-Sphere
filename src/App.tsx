@@ -1,8 +1,9 @@
 // App.tsx
 
 import { BrowserRouter as Router } from "react-router-dom";
-import { AuthProvider } from "./components/AuthContext";
 import AppRoutes from "./AppRoutes";
+import { AuthProvider } from "./components/AuthContext"; // If using AuthContext
+
 function App() {
   return (
     <Router>
