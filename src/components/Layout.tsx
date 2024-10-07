@@ -10,7 +10,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ hideHeader, children }) => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col w-screen min-h-screen">
       {!hideHeader && <DashboardHeader />}
       <main className="flex-grow">{children}</main>
       {/* Optionally include a footer */}
