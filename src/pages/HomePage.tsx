@@ -2,14 +2,10 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import DashboardHeader from "../components/LayoutHeader";
 
 const HomePage: React.FC = () => {
   return (
     <div className="bg-gray-900 min-h-screen text-white">
-      {/* Header */}
-      <DashboardHeader />
-
       {/* Main Content */}
       <main className="flex flex-col items-center justify-center py-20 px-4">
         <h1 className="text-4xl font-bold mb-6">Welcome to Your App</h1>

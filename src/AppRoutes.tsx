@@ -1,13 +1,15 @@
 // AppRoutes.tsx
 
+import React, { Suspense, lazy } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import HomePage from "./pages/HomePage";
-import LandingPage from "./pages/LandingPage";
-
+import LoadingScreen from "./components/LoadingScreen";
 import Layout from "./components/Layout";
+
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const HomePage = lazy(() => import("./pages/HomePage"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -17,12 +19,14 @@ const AppRoutes = () => {
 
   return (
     <Layout hideHeader={noHeaderRoutes.includes(location.pathname)}>
-      <Routes>
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<LandingPage />} />
-      </Routes>
+      <Suspense fallback={<LoadingScreen />}>
+        <Routes>
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<LandingPage />} />
+        </Routes>
+      </Suspense>
     </Layout>
   );
 };
