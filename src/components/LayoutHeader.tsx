@@ -9,7 +9,7 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../config/firebaseconfig";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -51,7 +51,7 @@ export default function DashboardHeader() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        navigate("/login");
+        navigate("/");
       } else {
         console.log("User is signed in:", user);
         setUsername(user.displayName || "Unknown User");
