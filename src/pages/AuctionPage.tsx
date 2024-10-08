@@ -23,6 +23,7 @@ const AuctionPage: React.FC = () => {
   const [bidAmount, setBidAmount] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [withdrawing, setWithdrawing] = useState<boolean>(false);
 
   useEffect(() => {
     if (address) {
@@ -78,6 +79,26 @@ const AuctionPage: React.FC = () => {
     }
   };
 
+  const withdrawFunds = async () => {
+    setWithdrawing(true);
+    setMessage("");
+
+    try {
+      if (!address) throw new Error("Invalid auction address");
+
+      const auctionContract = await getAuctionContract(address);
+      const tx = await auctionContract.withdraw();
+      await tx.wait();
+
+      setMessage("Funds successfully withdrawn!");
+    } catch (error) {
+      console.error(error);
+      setMessage("Error withdrawing funds: " + (error as Error).message);
+    } finally {
+      setWithdrawing(false);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto py-8">
       <h2 className="text-3xl font-bold mb-6">Auction Details</h2>
@@ -107,6 +128,14 @@ const AuctionPage: React.FC = () => {
           disabled={loading}
         >
           {loading ? "Placing Bid..." : "Place Bid"}
+        </button>
+
+        <button
+          onClick={withdrawFunds}
+          className="mt-4 px-8 py-3 bg-red-500 rounded-md text-white text-lg hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-400"
+          disabled={withdrawing}
+        >
+          {withdrawing ? "Withdrawing..." : "Withdraw Funds"}
         </button>
 
         {message && <p className="mt-4">{message}</p>}
