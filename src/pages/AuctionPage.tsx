@@ -8,6 +8,7 @@ interface AuctionDetails {
   itemDescription: string;
   highestBid: string;
   highestBidder: string;
+  imageurl: string;
 }
 
 const AuctionPage: React.FC = () => {
@@ -17,6 +18,7 @@ const AuctionPage: React.FC = () => {
     itemDescription: "",
     highestBid: "0",
     highestBidder: "",
+    imageurl: "",
   });
   const [bidAmount, setBidAmount] = useState<string>("");
   const [message, setMessage] = useState<string>("");
@@ -35,12 +37,14 @@ const AuctionPage: React.FC = () => {
             await auctionContract.itemDescription();
           const highestBid = await auctionContract.highestBid();
           const highestBidder: string = await auctionContract.highestBidder();
+          const imageurl: string = await auctionContract.itemImageURL(); // Fetch the image URL
 
           setAuction({
             itemName,
             itemDescription,
             highestBid: formatEther(highestBid), // Correctly using ethers formatEther
             highestBidder,
+            imageurl, // Set the image URL
           });
         } catch (error) {
           console.error(error);
@@ -78,6 +82,13 @@ const AuctionPage: React.FC = () => {
     <div className="max-w-4xl mx-auto py-8">
       <h2 className="text-3xl font-bold mb-6">Auction Details</h2>
       <div className="p-4 border rounded-lg shadow-md">
+        {auction.imageurl && (
+          <img
+            src={auction.imageurl}
+            alt={auction.itemName}
+            className="w-full h-60 object-cover rounded-md mb-4"
+          />
+        )}
         <h3 className="text-xl font-semibold mb-2">{auction.itemName}</h3>
         <p className="mb-2">{auction.itemDescription}</p>
         <p className="mb-2">Highest Bid: {auction.highestBid} ETH</p>

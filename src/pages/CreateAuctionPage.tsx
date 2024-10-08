@@ -4,14 +4,49 @@ import React, { useState, FormEvent } from "react";
 import auctionFactoryContract from "../ethereum/auctionFactory";
 import { ethers } from "ethers";
 import { useNavigate } from "react-router-dom";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { storage } from "../config/firebaseconfig";
 
 const CreateAuctionPage: React.FC = () => {
   const [itemName, setItemName] = useState<string>("");
   const [itemDescription, setItemDescription] = useState<string>("");
   const [biddingTime, setBiddingTime] = useState<string>(""); // In minutes
+  const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [imageURL, setImageURL] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const navigate = useNavigate();
+
+  // Handle image upload to Firebase
+  const handleImageUpload = () => {
+    if (!image) {
+      alert("Please select an image first.");
+      return;
+    }
+
+    setLoading(true);
+
+    const storageRef = ref(storage, `auction-images/${image.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, image);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        // Handle upload progress if needed
+      },
+      (error) => {
+        console.error("Error uploading image:", error);
+        setLoading(false);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+          setImageURL(url);
+          setLoading(false);
+          console.log("Image available at:", url);
+        });
+      }
+    );
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -24,7 +59,8 @@ const CreateAuctionPage: React.FC = () => {
       const tx = await auctionFactoryContract.createAuction(
         biddingTimeInSeconds,
         itemName,
-        itemDescription
+        itemDescription,
+        imageURL
       );
 
       await tx.wait();
@@ -72,6 +108,28 @@ const CreateAuctionPage: React.FC = () => {
             onChange={(e) => setBiddingTime(e.target.value)}
             required
           />
+        </div>
+        <div>
+          <label className="block text-lg mb-2">Upload Item Image</label>
+          <input
+            type="file"
+            onChange={(e) => e.target.files && setImage(e.target.files[0])}
+            className="block w-full text-sm text-white mb-2"
+          />
+          <button
+            onClick={handleImageUpload}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg"
+            disabled={loading}
+          >
+            {loading ? "Uploading..." : "Upload Image"}
+          </button>
+          {imageURL && (
+            <img
+              src={imageURL}
+              alt="Auction item"
+              className="w-full h-40 object-cover mt-4"
+            />
+          )}
         </div>
         <button
           type="submit"

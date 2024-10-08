@@ -8,6 +8,7 @@ interface AuctionData {
   address: string;
   itemName: string;
   highestBid: string;
+  imageurl: string;
 }
 
 const AuctionList: React.FC = () => {
@@ -24,6 +25,7 @@ const AuctionList: React.FC = () => {
             const auctionContract = await getAuctionContract(address);
             const itemName: string = await auctionContract.itemName();
             const highestBid = await auctionContract.highestBid();
+            const imageurl: string = await auctionContract.itemImageURL(); // Fetch the image URL
 
             const highestBidFormatted = formatEther(highestBid); // Correct use of formatEther from ethers v6
 
@@ -31,6 +33,7 @@ const AuctionList: React.FC = () => {
               address,
               itemName,
               highestBid: highestBidFormatted,
+              imageurl, // Set the image URL
             };
           })
         );
@@ -53,6 +56,13 @@ const AuctionList: React.FC = () => {
             key={auction.address}
             className="p-4 border rounded-lg shadow-md"
           >
+            {auction.imageurl && (
+              <img
+                src={auction.imageurl}
+                alt={auction.itemName}
+                className="w-full h-40 object-cover rounded-md mb-4"
+              />
+            )}
             <h3 className="text-xl font-semibold mb-2">{auction.itemName}</h3>
             <p className="mb-2">Highest Bid: {auction.highestBid} ETH</p>
             <Link

@@ -2,7 +2,7 @@ import { Contract, ethers } from "ethers";
 import provider from "./provider";
 import AuctionFactory from "./AuctionFactory.json";
 
-const auctionFactoryAddress = "0xB4D3f874a31d42be52C6d7357ccc8efEd8B68917"; // Replace with your contract address
+const auctionFactoryAddress = "0x0BAE898C0478f34Db83FCd0653519cEbE77d8F49"; // Replace with your contract address
 
 // Ensure the provider is available before continuing
 let auctionFactoryContract: Contract;

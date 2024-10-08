@@ -14,6 +14,7 @@ contract Auction {
 
     string public itemName;
     string public itemDescription;
+    string public itemImageURL;
 
     event HighestBidIncreased(address indexed bidder, uint amount);
     event AuctionEnded(address indexed winner, uint amount);
@@ -22,12 +23,14 @@ contract Auction {
         uint _biddingTime,
         address payable _seller,
         string memory _itemName,
-        string memory _itemDescription
+        string memory _itemDescription,
+        string memory _itemImageURL
     ) {
         seller = _seller;
         auctionEndTime = block.timestamp + _biddingTime;
         itemName = _itemName;
         itemDescription = _itemDescription;
+        itemImageURL = _itemImageURL;
     }
 
     function bid() public payable {
