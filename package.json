@@ -12,6 +12,7 @@
   "dependencies": {
     "@headlessui/react": "^2.1.8",
     "@heroicons/react": "^2.1.5",
+    "auction-sphere": "file:",
     "firebase": "^10.14.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
