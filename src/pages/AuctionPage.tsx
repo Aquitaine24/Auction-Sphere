@@ -61,6 +61,7 @@ const AuctionPage: React.FC = () => {
       const auctionContract = await getAuctionContract(address);
       const tx = await auctionContract.bid({
         value: ethers.parseEther(bidAmount),
+        gasLimit: 3000000,
       });
       await tx.wait();
 
