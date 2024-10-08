@@ -10,6 +10,9 @@ const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
+const CreateAuctionPage = lazy(() => import("./pages/CreateAuctionPage"));
+const AuctionList = lazy(() => import("./components/AuctionList"));
+const AuctionPage = lazy(() => import("./pages/AuctionPage"));
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -25,6 +28,9 @@ const AppRoutes = () => {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<LandingPage />} />
+          <Route path="/list" element={<AuctionList />} />
+          <Route path="/create" element={<CreateAuctionPage />} />
+          <Route path="/auction/:address" element={<AuctionPage />} />
         </Routes>
       </Suspense>
     </Layout>
