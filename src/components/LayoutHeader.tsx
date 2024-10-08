@@ -46,6 +46,16 @@ export default function DashboardHeader() {
       href: "/dashboard",
       current: location.pathname === "/dashboard",
     },
+    {
+      name: "Auctions",
+      href: "/list",
+      current: location.pathname === "/list",
+    },
+    {
+      name: "Sell",
+      href: "/create",
+      current: location.pathname === "/create",
+    },
   ];
 
   useEffect(() => {

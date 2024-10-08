@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\azmaa\\OneDrive - AUT University\\Year 2\\COMP726-Blockchain_Cryptocurrency_Technology\\Auction-Sphere\\backend\\contracts\\Auction.sol": {
-      "lastModificationDate": 1728382278935,
-      "contentHash": "333a561792d750224a9eeb5026963649",
+      "lastModificationDate": 1728399346569,
+      "contentHash": "bf27a26a9a6606689c1151ebf79f2528",
       "sourceName": "contracts/Auction.sol",
       "solcConfig": {
         "version": "0.8.1",
@@ -37,8 +37,8 @@
       ]
     },
     "C:\\Users\\azmaa\\OneDrive - AUT University\\Year 2\\COMP726-Blockchain_Cryptocurrency_Technology\\Auction-Sphere\\backend\\contracts\\AuctionFactory.sol": {
-      "lastModificationDate": 1728382403897,
-      "contentHash": "86f3398e3c3b6e0ae888a5df3c986baa",
+      "lastModificationDate": 1728398799313,
+      "contentHash": "b9e2b4eb76c0ff29f306a593bdf77180",
       "sourceName": "contracts/AuctionFactory.sol",
       "solcConfig": {
         "version": "0.8.1",

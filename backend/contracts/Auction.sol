@@ -18,6 +18,10 @@ contract Auction {
 
     event HighestBidIncreased(address indexed bidder, uint amount);
     event AuctionEnded(address indexed winner, uint amount);
+    event TransferFailed(address indexed seller, uint amount);
+    event AuctionEndCalled(address caller, uint timestamp);
+    event TransferAttempt(address recipient, uint amount, bool success);
+    event BalanceLog(uint balanceBefore, uint balanceAfter);
 
     constructor(
         uint _biddingTime,
@@ -63,16 +67,30 @@ contract Auction {
 
         return true;
     }
-
+    modifier onlySeller() {
+        require(msg.sender == seller, "Only the seller can end the auction.");
+        _;
+    }
     function auctionEnd() public {
         require(block.timestamp >= auctionEndTime, "Auction not yet ended.");
         require(!ended, "auctionEnd has already been called.");
 
         ended = true;
         emit AuctionEnded(highestBidder, highestBid);
+        emit AuctionEndCalled(msg.sender, block.timestamp);
+
+        uint balanceBefore = address(this).balance;
 
         // Transfer the highest bid to the seller
         (bool success, ) = seller.call{value: highestBid}("");
         require(success, "Transfer to seller failed.");
+
+        // Optional: Add a logging mechanism for debugging
+        if (!success) {
+            emit TransferFailed(seller, highestBid);
+        }
+
+        uint balanceAfter = address(this).balance;
+        emit BalanceLog(balanceBefore, balanceAfter);
     }
 }
