@@ -1,8 +1,7 @@
-// src/components/CreateAuctionPage.tsx
+//CreateAuctionPage.tsx
 
 import React, { useState, FormEvent } from "react";
 import auctionFactoryContract from "../ethereum/auctionFactory";
-import { ethers } from "ethers";
 import { useNavigate } from "react-router-dom";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "../config/firebaseconfig";

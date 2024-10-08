@@ -9,6 +9,7 @@ interface AuctionDetails {
   highestBid: string;
   highestBidder: string;
   imageurl: string;
+  auctionEndTime: number;
 }
 
 const AuctionPage: React.FC = () => {
@@ -19,11 +20,16 @@ const AuctionPage: React.FC = () => {
     highestBid: "0",
     highestBidder: "",
     imageurl: "",
+    auctionEndTime: 0,
   });
   const [bidAmount, setBidAmount] = useState<string>("");
   const [message, setMessage] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [withdrawing, setWithdrawing] = useState<boolean>(false);
+  const [loading, setLoading] = useState<{ [key: string]: boolean }>({
+    placeBid: false,
+    withdraw: false,
+    endAuction: false,
+  });
+  const [timeRemaining, setTimeRemaining] = useState<string>("Loading...");
 
   useEffect(() => {
     if (address) {
@@ -39,6 +45,7 @@ const AuctionPage: React.FC = () => {
           const highestBid = await auctionContract.highestBid();
           const highestBidder: string = await auctionContract.highestBidder();
           const imageurl: string = await auctionContract.itemImageURL(); // Fetch the image URL
+          const auctionEndTime: number = await auctionContract.auctionEndTime();
 
           setAuction({
             itemName,
@@ -46,6 +53,7 @@ const AuctionPage: React.FC = () => {
             highestBid: formatEther(highestBid), // Correctly using ethers formatEther
             highestBidder,
             imageurl, // Set the image URL
+            auctionEndTime,
           });
         } catch (error) {
           console.error(error);
@@ -56,8 +64,30 @@ const AuctionPage: React.FC = () => {
     }
   }, [address]);
 
+  useEffect(() => {
+    // Set up interval to update time remaining every second
+    const intervalId = setInterval(() => {
+      const currentTime = Math.floor(Date.now() / 1000);
+      const timeLeft = auction.auctionEndTime - currentTime;
+      if (timeLeft <= 0) {
+        setTimeRemaining("Auction ended");
+      } else {
+        const days = Math.floor(timeLeft / (3600 * 24));
+        const hours = Math.floor((timeLeft % (3600 * 24)) / 3600);
+        const minutes = Math.floor((timeLeft % 3600) / 60);
+        const seconds = timeLeft % 60;
+
+        setTimeRemaining(
+          `${days}d ${hours}h ${minutes}m ${seconds}s remaining`
+        );
+      }
+    }, 1000); // Update every second
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, [auction.auctionEndTime]);
+
   const placeBid = async () => {
-    setLoading(true);
+    setLoading({ ...loading, placeBid: true });
     setMessage("");
 
     try {
@@ -73,14 +103,14 @@ const AuctionPage: React.FC = () => {
       setMessage("Bid successfully placed!");
     } catch (error) {
       console.error(error);
-      setMessage("Error placing bid: " + (error as Error).message);
+      setMessage("Failed to place bid. Please try again.");
     } finally {
-      setLoading(false);
+      setLoading({ ...loading, placeBid: false });
     }
   };
 
   const withdrawFunds = async () => {
-    setWithdrawing(true);
+    setLoading({ ...loading, withdraw: true });
     setMessage("");
 
     try {
@@ -93,13 +123,16 @@ const AuctionPage: React.FC = () => {
       setMessage("Funds successfully withdrawn!");
     } catch (error) {
       console.error(error);
-      setMessage("Error withdrawing funds: " + (error as Error).message);
+      setMessage("Failed to withdraw funds. Please try again later");
     } finally {
-      setWithdrawing(false);
+      setLoading({ ...loading, withdraw: false });
     }
   };
 
   const endAuction = async () => {
+    setLoading({ ...loading, endAuction: true });
+    setMessage("");
+
     try {
       if (!address) throw new Error("Invalid auction address");
       const auctionContract = await getAuctionContract(address);
@@ -108,7 +141,11 @@ const AuctionPage: React.FC = () => {
       setMessage("Auction ended successfully!");
     } catch (error) {
       console.error("Error ending auction:", error);
-      setMessage("Error ending auction: " + (error as Error).message);
+      setMessage(
+        "Failed to end auction. Please make sure the auction has ended"
+      );
+    } finally {
+      setLoading({ ...loading, endAuction: false });
     }
   };
 
@@ -127,6 +164,7 @@ const AuctionPage: React.FC = () => {
         <p className="mb-2">{auction.itemDescription}</p>
         <p className="mb-2">Highest Bid: {auction.highestBid} ETH</p>
         <p className="mb-4">Highest Bidder: {auction.highestBidder}</p>
+        <p className="mb-4">Time Remaining: {timeRemaining}</p>
 
         <input
           type="text"
@@ -138,25 +176,25 @@ const AuctionPage: React.FC = () => {
         <button
           onClick={placeBid}
           className="px-8 py-3 bg-blue-500 rounded-md text-white text-lg hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-400"
-          disabled={loading}
+          disabled={loading.placeBid}
         >
-          {loading ? "Placing Bid..." : "Place Bid"}
+          {loading.placeBid ? "Placing Bid..." : "Place Bid"}
         </button>
 
         <button
           onClick={withdrawFunds}
           className="mt-4 px-8 py-3 bg-red-500 rounded-md text-white text-lg hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-400"
-          disabled={withdrawing}
+          disabled={loading.withdraw}
         >
-          {withdrawing ? "Withdrawing..." : "Withdraw Funds"}
+          {loading.withdraw ? "Withdrawing..." : "Withdraw Funds"}
         </button>
 
         <button
           onClick={endAuction}
           className="px-8 py-3 bg-red-500 rounded-md text-white text-lg hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-400"
-          disabled={loading}
+          disabled={loading.endAuction}
         >
-          {loading ? "Ending Auction..." : "End Auction"}
+          {loading.endAuction ? "Ending Auction..." : "End Auction"}
         </button>
 
         {message && <p className="mt-4">{message}</p>}
