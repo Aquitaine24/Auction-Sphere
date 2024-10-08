@@ -15,6 +15,7 @@ import { auth } from "../config/firebaseconfig";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import logo from "../assets/app-logo.png";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
 const userNavigation = [
   { name: "Your Profile", href: "/profile" },
@@ -66,10 +67,23 @@ export default function DashboardHeader() {
         console.log("User is signed in:", user);
         setUsername(user.displayName || "Unknown User");
         setEmail(user.email || "Unknown Email");
-        setImg(
-          user.photoURL ||
+
+        // Fetch the user's profile image from Firebase Storage
+        const storage = getStorage();
+        try {
+          if (user.photoURL) {
+            setImg(user.photoURL);
+          } else {
+            const imageRef = ref(storage, `profile_pictures/${user.uid}`);
+            const url = await getDownloadURL(imageRef);
+            setImg(url);
+          }
+        } catch (error) {
+          console.error("Error loading profile image:", error);
+          setImg(
             "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541"
-        );
+          );
+        }
       }
     });
 
