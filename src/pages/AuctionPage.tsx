@@ -99,6 +99,19 @@ const AuctionPage: React.FC = () => {
     }
   };
 
+  const endAuction = async () => {
+    try {
+      if (!address) throw new Error("Invalid auction address");
+      const auctionContract = await getAuctionContract(address);
+      const tx = await auctionContract.auctionEnd();
+      await tx.wait();
+      setMessage("Auction ended successfully!");
+    } catch (error) {
+      console.error("Error ending auction:", error);
+      setMessage("Error ending auction: " + (error as Error).message);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto py-8">
       <h2 className="text-3xl font-bold mb-6">Auction Details</h2>
@@ -136,6 +149,14 @@ const AuctionPage: React.FC = () => {
           disabled={withdrawing}
         >
           {withdrawing ? "Withdrawing..." : "Withdraw Funds"}
+        </button>
+
+        <button
+          onClick={endAuction}
+          className="px-8 py-3 bg-red-500 rounded-md text-white text-lg hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-400"
+          disabled={loading}
+        >
+          {loading ? "Ending Auction..." : "End Auction"}
         </button>
 
         {message && <p className="mt-4">{message}</p>}
