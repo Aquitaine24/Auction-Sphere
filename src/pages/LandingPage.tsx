@@ -28,21 +28,24 @@ const LandingPage: React.FC = () => {
       {/* Main Content */}
       <main className="flex flex-col items-center justify-center flex-grow px-4">
         <h1 className="text-5xl font-bold text-white mb-6 text-center">
-          Welcome to Your Auction Sphere
+          Welcome to Auction Sphere
         </h1>
         <p className="text-lg text-gray-300 mb-8 text-center max-w-2xl">
-          Discover amazing features and seamless experience with our
-          application. Join us today and be a part of our community.
+          Auction Sphere is a blockchain-powered auction platform that ensures
+          transparency, security, and trust for both buyers and sellers.
+          Leveraging the decentralized nature of blockchain, Auction Sphere
+          offers a seamless, fair, and tamper-proof auction experience, bringing
+          modern innovation to the traditional auction space.
         </p>
         <div className="space-x-4">
           <Link
-            to="/login"
+            to="/register"
             className="px-8 py-3 bg-blue-500 rounded-md text-white text-lg hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-400"
           >
             Get Started
           </Link>
           <Link
-            to="/register"
+            to="/login"
             className="px-8 py-3 bg-gray-700 rounded-md text-white text-lg hover:bg-gray-600 focus:outline-none focus:ring focus:ring-gray-500"
           >
             Sign In
