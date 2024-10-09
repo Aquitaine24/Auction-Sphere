@@ -11,7 +11,8 @@ const CreateAuctionPage: React.FC = () => {
   const [itemDescription, setItemDescription] = useState<string>("");
   const [biddingTime, setBiddingTime] = useState<string>(""); // In minutes
   const [image, setImage] = useState<File | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [imageLoading, setImageLoading] = useState<boolean>(false);
+  const [createLoading, setCreateLoading] = useState<boolean>(false);
   const [imageURL, setImageURL] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const CreateAuctionPage: React.FC = () => {
       return;
     }
 
-    setLoading(true);
+    setImageLoading(true);
 
     const storageRef = ref(storage, `auction-images/${image.name}`);
     const uploadTask = uploadBytesResumable(storageRef, image);
@@ -35,12 +36,12 @@ const CreateAuctionPage: React.FC = () => {
       },
       (error) => {
         console.error("Error uploading image:", error);
-        setLoading(false);
+        setImageLoading(false);
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((url) => {
           setImageURL(url);
-          setLoading(false);
+          setImageLoading(false);
           console.log("Image available at:", url);
         });
       }
@@ -50,7 +51,7 @@ const CreateAuctionPage: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    setLoading(true);
+    setCreateLoading(true);
     setMessage("");
 
     try {
@@ -71,7 +72,7 @@ const CreateAuctionPage: React.FC = () => {
       console.error(error);
       setMessage("Error creating auction. See console for details.");
     } finally {
-      setLoading(false);
+      setCreateLoading(false);
     }
   };
 
@@ -118,9 +119,9 @@ const CreateAuctionPage: React.FC = () => {
           <button
             onClick={handleImageUpload}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg"
-            disabled={loading}
+            disabled={imageLoading}
           >
-            {loading ? "Uploading..." : "Upload Image"}
+            {imageLoading ? "Uploading..." : "Upload Image"}
           </button>
           {imageURL && (
             <img
@@ -132,10 +133,10 @@ const CreateAuctionPage: React.FC = () => {
         </div>
         <button
           type="submit"
-          disabled={loading}
+          disabled={createLoading}
           className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
         >
-          {loading ? "Creating..." : "Create Auction"}
+          {createLoading ? "Creating..." : "Create Auction"}
         </button>
       </form>
       {message && <p className="mt-4 text-green-500">{message}</p>}
