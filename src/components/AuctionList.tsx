@@ -97,13 +97,16 @@ const AuctionList: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
-      <h2 className="text-3xl font-bold mb-6">Auctions</h2>
-      <div className="space-y-4">
-        {auctions.map((auction) => (
+  <div className="max-w-7xl mx-auto py-8">
+    <h2 className="text-3xl font-bold mb-6">Auctions</h2>
+    {auctions.length === 0 ? (
+      <p>No auctions available at the moment.</p>
+    ) : (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        {auctions.map((auction) => ( // Generate Auction cards
           <div
             key={auction.address}
-            className="p-4 border rounded-lg shadow-md"
+            className="bg-gray-800 h-96 rounded-lg shadow-lg p-6 text-center"
           >
             {auction.imageurl && (
               <img
@@ -112,9 +115,9 @@ const AuctionList: React.FC = () => {
                 className="w-full h-40 object-cover rounded-md mb-4"
               />
             )}
-            <h3 className="text-xl font-semibold mb-2">{auction.itemName}</h3>
-            <p className="mb-2">Highest Bid: {auction.highestBid} ETH</p>
-            <p className="mb-2">
+            <h3 className="text-2xl font-semibold mb-4">{auction.itemName}</h3>
+            <p className="text-lg mb-2">Highest Bid: {auction.highestBid} ETH</p>
+            <p className="text-sm mb-4">
               Time Remaining: {timeRemaining[auction.address] || "Loading..."}
             </p>
             <Link
@@ -126,8 +129,10 @@ const AuctionList: React.FC = () => {
           </div>
         ))}
       </div>
-    </div>
-  );
+    )}
+  </div>
+);
+
 };
 
 export default AuctionList;
