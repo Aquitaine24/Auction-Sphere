@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import auctionFactoryContract from "../ethereum/auctionFactory"; // Default import
 import { formatEther } from "ethers"; // Import formatEther directly from ethers v6
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getAuctionContract } from "../ethereum/auction"; // Make sure getAuctionContract is imported correctly
 
 interface AuctionData {
@@ -18,6 +18,7 @@ const AuctionList: React.FC = () => {
     {}
   );
   const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAuctions = async () => {
@@ -96,42 +97,76 @@ const AuctionList: React.FC = () => {
     return <div className="max-w-4xl mx-auto py-8">Loading auctions...</div>;
   }
 
+  // Filter only live auctions (those with auctionEndTime in the future)
+  const liveAuctions = auctions.filter(
+    (auction) => Number(auction.auctionEndTime) > Math.floor(Date.now() / 1000)
+  );
+  const pastAuctions = auctions.filter(
+    (auction) => Number(auction.auctionEndTime) < Math.floor(Date.now() / 1000)
+  );
+
   return (
-  <div className="max-w-7xl mx-auto py-8">
-    <h2 className="text-3xl font-bold mb-6">Auctions</h2>
-    {auctions.length === 0 ? (
-      <p>No auctions available at the moment.</p>
-    ) : (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        {auctions.map((auction) => ( // Generate Auction cards
-          <div
-            key={auction.address}
-            className="bg-gray-800 h-96 rounded-lg shadow-lg p-6 text-center"
-          >
-            {auction.imageurl && (
-              <img
-                src={auction.imageurl}
-                alt={auction.itemName}
-                className="w-full h-40 object-cover rounded-md mb-4"
-              />
-            )}
-            <h3 className="text-2xl font-semibold mb-4">{auction.itemName}</h3>
-            <p className="text-lg mb-2">Highest Bid: {auction.highestBid} ETH</p>
-            <p className="text-sm mb-4">
-              Time Remaining: {timeRemaining[auction.address] || "Loading..."}
-            </p>
-            <Link
-              to={`/auction/${auction.address}`}
-              className="text-blue-500 hover:underline"
+    <div className="max-w-7xl mx-auto py-8">
+      <h2 className="text-3xl font-bold mb-6">Today's Live Auctions</h2>
+      {liveAuctions.length === 0 ? (
+        <p>No auctions available at the moment.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          {liveAuctions.map((auction) => ( // Generate Auction cards
+            <div
+              key={auction.address}
+              className="bg-gray-800 h-96 rounded-lg shadow-lg text-center cursor-pointer hover:shadow-2xl"
+              onClick={() => navigate(`/auction/${auction.address}`)}
             >
-              View Auction
-            </Link>
-          </div>
-        ))}
-      </div>
-    )}
-  </div>
-);
+              {auction.imageurl && (
+                <div className="bg-gray-600 h-48 w-full flex justify-center items-center rounded-t-lg">
+                  <img
+                    src={auction.imageurl}
+                    alt={auction.itemName}
+                    className="w-full h-48 object-contain rounded-t-lg"
+                  />
+                </div>
+              )}
+              <h3 className="mt-3 text-2xl font-semibold mb-4">{auction.itemName}</h3>
+              <p className="text-lg mb-2">Highest Bid: {auction.highestBid} ETH</p>
+              <p className="text-sm mb-4">
+                Time Remaining: {timeRemaining[auction.address] || "Loading..."}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+      <h2 className="mt-6 text-3xl font-bold mb-6">Past Auctions</h2>
+      {pastAuctions.length === 0 ? (
+        <p>No auctions available at the moment.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          {pastAuctions.map((auction) => ( // Generate Auction cards
+            <div
+              key={auction.address}
+              className="bg-gray-800 h-96 rounded-lg shadow-lg text-center cursor-pointer hover:shadow-2xl"
+              onClick={() => navigate(`/auction/${auction.address}`)}
+            >
+              {auction.imageurl && (
+                <div className="bg-gray-600 h-48 w-full flex justify-center items-center rounded-t-lg">
+                  <img
+                    src={auction.imageurl}
+                    alt={auction.itemName}
+                    className="w-full h-48 object-contain rounded-t-lg"
+                  />
+                </div>
+              )}
+              <h3 className="mt-3 text-2xl font-semibold mb-4">{auction.itemName}</h3>
+              <p className="text-lg mb-2">Highest Bid: {auction.highestBid} ETH</p>
+              <p className="text-sm mb-4">
+                Time Remaining: {timeRemaining[auction.address] || "Loading..."}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
 };
 
