@@ -2,27 +2,39 @@ import React, { useEffect, useState } from "react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { firestore, auth } from "../config/firebaseconfig";
 import { Link } from "react-router-dom";
+import { ethers } from "ethers";
 import { onAuthStateChanged } from "firebase/auth";
 
 const ConversationsList: React.FC = () => {
   const [conversations, setConversations] = useState<any[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userEthAddress, setUserEthAddress] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
+    const fetchEthAddress = async () => {
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
+          const checksumAddress = ethers.getAddress(accounts[0]); // Convert to checksum format
+          setUserEthAddress(checksumAddress);
+          console.log("User Ethereum Address:", checksumAddress); // Debugging log
+        } catch (error) {
+          console.error("Error fetching Ethereum address:", error);
+        }
+      } else {
+        console.error("MetaMask is not installed.");
       }
-    });
+    };
 
-    return () => unsubscribeAuth();
+    fetchEthAddress();
   }, []);
 
   useEffect(() => {
-    if (userId) {
+    if (userEthAddress) {
       const q = query(
         collection(firestore, "conversations"),
-        where("participants", "array-contains", userId)
+        where("participants", "array-contains", userEthAddress)
       );
 
       const unsubscribeConversations = onSnapshot(q, (querySnapshot) => {
@@ -36,7 +48,7 @@ const ConversationsList: React.FC = () => {
 
       return () => unsubscribeConversations();
     }
-  }, [userId]);
+  }, [userEthAddress]);
 
   return (
     <div className="conversations-container p-4">
@@ -51,7 +63,9 @@ const ConversationsList: React.FC = () => {
             <p className="font-medium">
               Conversation with:{" "}
               {conv.participants
-                .filter((participantId: string) => participantId !== userId)
+                .filter(
+                  (participantId: string) => participantId !== userEthAddress
+                )
                 .join(", ")}
             </p>
           </Link>

@@ -159,8 +159,8 @@ const AuctionPage: React.FC = () => {
       await tx.wait();
 
       // Fetch the highest bidder from the contract
-      const highestBidder = await auctionContract.highestBidder();
-      const sellerId = auth.currentUser?.uid;
+      const highestBidder: string = await auctionContract.highestBidder();
+      const sellerId: string = await auctionContract.seller();
 
       if (!sellerId) throw new Error("Seller information is unavailable");
 
@@ -246,7 +246,8 @@ const AuctionPage: React.FC = () => {
               alt={auction.itemName}
               className="max-h-full max-w-full object-contain"
             />
-          ) : (<span className="text-gray-300">No Image Available</span>
+          ) : (
+            <span className="text-gray-300">No Image Available</span>
           )}
         </div>
 
