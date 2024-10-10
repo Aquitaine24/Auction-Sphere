@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getAuctionContract } from "../ethereum/auction";
 import { ethers, formatEther } from "ethers";
 import { Clock4 } from "lucide-react";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  serverTimestamp,
+  where,
+} from "firebase/firestore";
+import { auth, firestore } from "../config/firebaseconfig";
 
 interface AuctionDetails {
   itemName: string;
@@ -11,10 +20,12 @@ interface AuctionDetails {
   highestBidder: string;
   imageurl: string;
   auctionEndTime: number;
+  sellerId: string;
 }
 
 const AuctionPage: React.FC = () => {
   const { address } = useParams<Record<string, string>>(); // Using Record<string, string> to type useParams
+  const navigate = useNavigate();
   const [auction, setAuction] = useState<AuctionDetails>({
     itemName: "",
     itemDescription: "",
@@ -22,6 +33,7 @@ const AuctionPage: React.FC = () => {
     highestBidder: "",
     imageurl: "",
     auctionEndTime: 0,
+    sellerId: "",
   });
   const [bidAmount, setBidAmount] = useState<string>("");
   const [message, setMessage] = useState<string>("");
@@ -47,6 +59,7 @@ const AuctionPage: React.FC = () => {
           const highestBidder: string = await auctionContract.highestBidder();
           const imageurl: string = await auctionContract.itemImageURL(); // Fetch the image URL
           const auctionEndTime: number = await auctionContract.auctionEndTime();
+          const sellerId: string = await auctionContract.seller();
 
           setAuction({
             itemName,
@@ -55,6 +68,7 @@ const AuctionPage: React.FC = () => {
             highestBidder,
             imageurl, // Set the image URL
             auctionEndTime,
+            sellerId,
           });
         } catch (error) {
           console.error(error);
@@ -69,7 +83,7 @@ const AuctionPage: React.FC = () => {
     // Set up interval to update time remaining every second
     const intervalId = setInterval(() => {
       const currentTime = Math.floor(Date.now() / 1000);
-      const timeLeft = auction.auctionEndTime - currentTime;
+      const timeLeft = Number(auction.auctionEndTime) - currentTime;
       if (timeLeft <= 0) {
         setTimeRemaining("Auction ended");
       } else {
@@ -136,17 +150,62 @@ const AuctionPage: React.FC = () => {
 
     try {
       if (!address) throw new Error("Invalid auction address");
+
       const auctionContract = await getAuctionContract(address);
       const tx = await auctionContract.auctionEnd();
       await tx.wait();
-      setMessage("Auction ended successfully!");
+
+      // Fetch the highest bidder from the contract
+      const highestBidder = await auctionContract.highestBidder();
+      const sellerId = auth.currentUser?.uid;
+
+      if (!sellerId) throw new Error("Seller information is unavailable");
+
+      // Create a conversation between the seller and the highest bidder
+      await createConversation(sellerId, highestBidder);
+      navigate(`/conversations/${address}`);
+
+      setMessage("Auction ended successfully, and conversation created!");
     } catch (error) {
       console.error("Error ending auction:", error);
       setMessage(
-        "Failed to end auction. Please make sure the auction has ended"
+        "Failed to end auction. Please make sure the auction has ended."
       );
     } finally {
       setLoading({ ...loading, endAuction: false });
+    }
+  };
+
+  const createConversation = async (sellerId: string, buyerId: string) => {
+    try {
+      // Check if conversation already exists between the two participants
+      const conversationsRef = collection(firestore, "conversations");
+      const q = query(
+        conversationsRef,
+        where("participants", "array-contains", sellerId)
+      );
+      const existingConversations = await getDocs(q);
+
+      const conversationExists = existingConversations.docs.some((doc) =>
+        doc.data().participants.includes(buyerId)
+      );
+
+      if (conversationExists) {
+        console.log("Conversation already exists");
+        return;
+      }
+
+      // Create a new conversation if it does not exist
+      const conversationData = {
+        participants: [sellerId, buyerId],
+        createdAt: serverTimestamp(),
+        lastMessage: "",
+      };
+      await addDoc(collection(firestore, "conversations"), conversationData);
+
+      console.log("Conversation created successfully!");
+    } catch (error) {
+      console.error("Error creating conversation:", error);
     }
   };
 
@@ -170,32 +229,36 @@ const AuctionPage: React.FC = () => {
         <div className="col-span-1">
           <div className="p-6">
             <h2 className="text-3xl font-bold mb-4">{auction.itemName}</h2>
-            {timeRemaining === 'Auction ended' ?
-              <p className='text-sm text-red-500 mb-4 flex items-center'>
-                <Clock4 className="mr-2" />{timeRemaining}
+            {timeRemaining === "Auction ended" ? (
+              <p className="text-sm text-red-500 mb-4 flex items-center">
+                <Clock4 className="mr-2" />
+                {timeRemaining}
               </p>
-              :
-              <p className='text-sm mb-4 flex items-center'>
-                <Clock4 className="mr-2" />Time Remaining: {timeRemaining || "Loading..."}
+            ) : (
+              <p className="text-sm mb-4 flex items-center">
+                <Clock4 className="mr-2" />
+                Time Remaining: {timeRemaining || "Loading..."}
               </p>
-            }
+            )}
             <p className="text-md text-white mb-6">
               Description: {auction.itemDescription}
             </p>
           </div>
 
-
           <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
             <p className="text-lg font-semibold mb-2">
-              Highest Bid: <span className="text-blue-600">{auction.highestBid} ETH</span>
+              Highest Bid:{" "}
+              <span className="text-blue-600">{auction.highestBid} ETH</span>
             </p>
-            {auction.highestBidder !== '0x0000000000000000000000000000000000000000' ?
+            {auction.highestBidder !==
+            "0x0000000000000000000000000000000000000000" ? (
               <p className="text-lg font-semibold mb-4">
-                Highest Bidder: <span className="text-blue-600">{auction.highestBidder}</span>
+                Highest Bidder:{" "}
+                <span className="text-blue-600">{auction.highestBidder}</span>
               </p>
-              : <p className="text-lg font-semibold mb-4">
-                No bids made yet
-              </p>}
+            ) : (
+              <p className="text-lg font-semibold mb-4">No bids made yet</p>
+            )}
 
             {/* Bid Input */}
             <input
@@ -234,7 +297,9 @@ const AuctionPage: React.FC = () => {
             </div>
 
             {/* Message */}
-            {message && <p className="mt-4 text-center text-gray-700">{message}</p>}
+            {message && (
+              <p className="mt-4 text-center text-gray-700">{message}</p>
+            )}
           </div>
         </div>
       </div>
