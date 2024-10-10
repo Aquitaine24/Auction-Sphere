@@ -31,6 +31,7 @@ const AuctionPage: React.FC = () => {
     endAuction: false,
   });
   const [timeRemaining, setTimeRemaining] = useState<string>("Loading...");
+  const [imageLoading, setImageLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (address) {
@@ -58,6 +59,8 @@ const AuctionPage: React.FC = () => {
           });
         } catch (error) {
           console.error(error);
+        } finally {
+          setImageLoading(false);
         }
       };
 
@@ -157,12 +160,34 @@ const AuctionPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Image Section */}
         <div className="bg-gray-800 h-[520px] col-span-1 md:col-span-2 flex justify-center items-center rounded-lg shadow-lg overflow-hidden">
-          {auction.imageurl && (
+          {imageLoading ? (
+            <svg
+              className="animate-spin h-12 w-12 text-blue-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              ></path>
+            </svg>
+          ) : auction.imageurl ? (
             <img
               src={auction.imageurl}
               alt={auction.itemName}
               className="max-h-full max-w-full object-contain"
             />
+          ) : (<span className="text-gray-300">No Image Available</span>
           )}
         </div>
 
