@@ -57,6 +57,11 @@ export default function DashboardHeader() {
       href: "/create",
       current: location.pathname === "/create",
     },
+    {
+      name: "Messages",
+      href: "/conversations",
+      current: location.pathname === "/create",
+    },
   ];
 
   useEffect(() => {

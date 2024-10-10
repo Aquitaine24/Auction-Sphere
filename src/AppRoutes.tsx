@@ -14,6 +14,8 @@ const CreateAuctionPage = lazy(() => import("./pages/CreateAuctionPage"));
 const AuctionList = lazy(() => import("./components/AuctionList"));
 const AuctionPage = lazy(() => import("./pages/AuctionPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const ChatBox = lazy(() => import("./components/ChatBox"));
+const ConversationsList = lazy(() => import("./components/ConversationsList"));
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -33,6 +35,8 @@ const AppRoutes = () => {
           <Route path="/create" element={<CreateAuctionPage />} />
           <Route path="/auction/:address" element={<AuctionPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/chat/:conversationId" element={<ChatBox />} />
+          <Route path="/conversations" element={<ConversationsList />} />
         </Routes>
       </Suspense>
     </Layout>
