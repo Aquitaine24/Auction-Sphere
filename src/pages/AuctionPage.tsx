@@ -277,12 +277,12 @@ const AuctionPage: React.FC = () => {
             </p>
             {auction.highestBidder !==
             "0x0000000000000000000000000000000000000000" ? (
-              <p className="text-lg font-semibold mb-4">
+              <p className="text-sm font-semibold mb-4">
                 Highest Bidder:{" "}
                 <span className="text-blue-600">{auction.highestBidder}</span>
               </p>
             ) : (
-              <p className="text-lg font-semibold mb-4">No bids made yet</p>
+              <p className="text-sm font-semibold mb-4">No bids made yet</p>
             )}
 
             {/* Bid Input */}
