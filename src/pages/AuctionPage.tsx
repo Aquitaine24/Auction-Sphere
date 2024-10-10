@@ -11,7 +11,7 @@ import {
   serverTimestamp,
   where,
 } from "firebase/firestore";
-import { auth, firestore } from "../config/firebaseconfig";
+import { firestore } from "../config/firebaseconfig";
 
 interface AuctionDetails {
   itemName: string;

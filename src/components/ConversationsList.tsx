@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { firestore, auth } from "../config/firebaseconfig";
+import { firestore } from "../config/firebaseconfig";
 import { Link } from "react-router-dom";
 import { ethers } from "ethers";
-import { onAuthStateChanged } from "firebase/auth";
 
 const ConversationsList: React.FC = () => {
   const [conversations, setConversations] = useState<any[]>([]);
