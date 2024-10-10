@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getAuctionContract } from "../ethereum/auction";
 import { ethers, formatEther } from "ethers";
+import { Clock4 } from "lucide-react";
 
 interface AuctionDetails {
   itemName: string;
@@ -166,61 +167,75 @@ const AuctionPage: React.FC = () => {
         </div>
 
         {/* Details Section */}
-        <div className="bg-gray-800 p-6 col-span-1 rounded-lg shadow-lg">
-          <h2 className="text-3xl font-bold mb-4">{auction.itemName}</h2>
-          <p className="text-white mb-4">{auction.itemDescription}</p>
-          <p className="text-lg font-semibold mb-2">
-            Highest Bid: <span className="text-blue-600">{auction.highestBid} ETH</span>
-          </p>
-          {auction.highestBidder !== '0x0000000000000000000000000000000000000000' ?
-            <p className="text-lg font-semibold mb-4">
-              Highest Bidder: <span className="text-blue-600">{auction.highestBidder}</span>
+        <div className="col-span-1">
+          <div className="p-6">
+            <h2 className="text-3xl font-bold mb-4">{auction.itemName}</h2>
+            {timeRemaining === 'Auction ended' ?
+              <p className='text-sm text-red-500 mb-4 flex items-center'>
+                <Clock4 className="mr-2" />{timeRemaining}
+              </p>
+              :
+              <p className='text-sm mb-4 flex items-center'>
+                <Clock4 className="mr-2" />Time Remaining: {timeRemaining || "Loading..."}
+              </p>
+            }
+            <p className="text-md text-white mb-6">
+              Description: {auction.itemDescription}
             </p>
-            : <p className="text-lg font-semibold mb-4">
-              No bids made yet
-            </p>}
-          <p className="text-sm text-white mb-6">
-            Time Remaining: {timeRemaining}
-          </p>
-
-          {/* Bid Input */}
-          <input
-            type="text"
-            value={bidAmount}
-            onChange={(e) => setBidAmount(e.target.value)}
-            placeholder="Enter your bid amount in ETH"
-            className="p-2 border rounded w-full mb-4 focus:outline-none focus:ring focus:ring-blue-300"
-          />
-
-          {/* Action Buttons */}
-          <div className="space-y-4">
-            <button
-              onClick={placeBid}
-              className="w-full px-8 py-3 bg-blue-500 rounded-md text-white text-lg hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-400"
-              disabled={loading.placeBid}
-            >
-              {loading.placeBid ? "Placing Bid..." : "Place Bid"}
-            </button>
-
-            <button
-              onClick={withdrawFunds}
-              className="w-full px-8 py-3 bg-red-500 rounded-md text-white text-lg hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-400"
-              disabled={loading.withdraw}
-            >
-              {loading.withdraw ? "Withdrawing..." : "Withdraw Funds"}
-            </button>
-
-            <button
-              onClick={endAuction}
-              className="w-full px-8 py-3 bg-red-500 rounded-md text-white text-lg hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-400"
-              disabled={loading.endAuction}
-            >
-              {loading.endAuction ? "Ending Auction..." : "End Auction"}
-            </button>
           </div>
 
-          {/* Message */}
-          {message && <p className="mt-4 text-center text-gray-700">{message}</p>}
+
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+            <p className="text-lg font-semibold mb-2">
+              Highest Bid: <span className="text-blue-600">{auction.highestBid} ETH</span>
+            </p>
+            {auction.highestBidder !== '0x0000000000000000000000000000000000000000' ?
+              <p className="text-lg font-semibold mb-4">
+                Highest Bidder: <span className="text-blue-600">{auction.highestBidder}</span>
+              </p>
+              : <p className="text-lg font-semibold mb-4">
+                No bids made yet
+              </p>}
+
+            {/* Bid Input */}
+            <input
+              type="text"
+              value={bidAmount}
+              onChange={(e) => setBidAmount(e.target.value)}
+              placeholder="Enter your bid amount in ETH"
+              className="p-2 border rounded w-full mb-4 focus:outline-none focus:ring focus:ring-blue-300"
+            />
+
+            {/* Action Buttons */}
+            <div className="space-y-4">
+              <button
+                onClick={placeBid}
+                className="w-full px-8 py-3 bg-blue-500 rounded-md text-white text-lg hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-400"
+                disabled={loading.placeBid}
+              >
+                {loading.placeBid ? "Placing Bid..." : "Place Bid"}
+              </button>
+
+              <button
+                onClick={withdrawFunds}
+                className="w-full px-8 py-3 bg-red-500 rounded-md text-white text-lg hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-400"
+                disabled={loading.withdraw}
+              >
+                {loading.withdraw ? "Withdrawing..." : "Withdraw Funds"}
+              </button>
+
+              <button
+                onClick={endAuction}
+                className="w-full px-8 py-3 bg-red-500 rounded-md text-white text-lg hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-400"
+                disabled={loading.endAuction}
+              >
+                {loading.endAuction ? "Ending Auction..." : "End Auction"}
+              </button>
+            </div>
+
+            {/* Message */}
+            {message && <p className="mt-4 text-center text-gray-700">{message}</p>}
+          </div>
         </div>
       </div>
     </div>

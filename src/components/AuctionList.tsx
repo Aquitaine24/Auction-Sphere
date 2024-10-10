@@ -98,12 +98,13 @@ const AuctionList: React.FC = () => {
   }
 
   // Filter only live auctions (those with auctionEndTime in the future)
-  const liveAuctions = auctions.filter(
-    (auction) => Number(auction.auctionEndTime) > Math.floor(Date.now() / 1000)
-  );
-  const pastAuctions = auctions.filter(
-    (auction) => Number(auction.auctionEndTime) < Math.floor(Date.now() / 1000)
-  );
+  const liveAuctions = auctions
+    .filter((auction) => Number(auction.auctionEndTime) > Math.floor(Date.now() / 1000))
+    .sort((a, b) => Number(b.auctionEndTime) - Number(a.auctionEndTime));
+
+  const pastAuctions = auctions
+    .filter((auction) => Number(auction.auctionEndTime) < Math.floor(Date.now() / 1000))
+    .sort((a, b) => Number(b.auctionEndTime) - Number(a.auctionEndTime));
 
   return (
     <div className="max-w-7xl mx-auto py-8">
@@ -158,9 +159,15 @@ const AuctionList: React.FC = () => {
               )}
               <h3 className="mt-3 text-2xl font-semibold mb-4">{auction.itemName}</h3>
               <p className="text-lg mb-2">Highest Bid: {auction.highestBid} ETH</p>
-              <p className="text-sm mb-4">
-                Time Remaining: {timeRemaining[auction.address] || "Loading..."}
-              </p>
+              {timeRemaining[auction.address] === 'Auction ended' ?
+                <p className='text-sm text-red-500 mb-4'>
+                  {timeRemaining[auction.address]}
+                </p>
+                :
+                <p className='text-sm mb-4'>
+                  Time Remaining: {timeRemaining[auction.address] || "Loading..."}
+                </p>
+              }
             </div>
           ))}
         </div>
