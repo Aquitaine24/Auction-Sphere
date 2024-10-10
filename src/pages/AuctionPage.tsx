@@ -214,7 +214,7 @@ const AuctionPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto py-8">
-      <h2 className="text-3xl font-bold mb-8 text-center">Auction Details</h2>
+      <h2 className="text-3xl font-bold mb-8">Auction Details</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Image Section */}
@@ -265,7 +265,7 @@ const AuctionPage: React.FC = () => {
                 Time Remaining: {timeRemaining || "Loading..."}
               </p>
             )}
-            <p className="text-md text-white mb-6">
+            <p className="text-md text-white mb-2">
               Description: {auction.itemDescription}
             </p>
           </div>
