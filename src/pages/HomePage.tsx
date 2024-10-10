@@ -16,16 +16,16 @@ const HomePage: React.FC = () => {
         </p>
         <div className="space-x-4">
           <Link
-            to="/dashboard"
+            to="/list"
             className="px-6 py-3 bg-blue-500 rounded-md text-white text-lg hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-400"
           >
-            Go to Dashboard
+            Go to Live Auctions
           </Link>
           <Link
-            to="/signin"
+            to="/create"
             className="px-6 py-3 bg-gray-700 rounded-md text-white text-lg hover:bg-gray-600 focus:outline-none focus:ring focus:ring-gray-500"
           >
-            Sign In
+            Sell
           </Link>
         </div>
       </main>

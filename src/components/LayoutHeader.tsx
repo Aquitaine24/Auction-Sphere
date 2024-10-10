@@ -43,9 +43,9 @@ export default function DashboardHeader() {
 
   const navigation = [
     {
-      name: "Dashboard",
-      href: "/dashboard",
-      current: location.pathname === "/dashboard",
+      name: "Home",
+      href: "/home",
+      current: location.pathname === "/home",
     },
     {
       name: "Auctions",

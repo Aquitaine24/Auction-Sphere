@@ -115,6 +115,7 @@ const CreateAuctionPage: React.FC = () => {
             type="file"
             onChange={(e) => e.target.files && setImage(e.target.files[0])}
             className="block w-full text-sm text-white mb-2"
+            required
           />
           <button
             onClick={handleImageUpload}
