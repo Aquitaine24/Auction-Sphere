@@ -77,14 +77,14 @@ const CreateAuctionPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-8">
+    <div className="bg-gray-800 rounded-lg shadow-lg max-w-3xl p-10 mx-auto py-8">
       <h2 className="text-3xl font-bold mb-6">Create Auction</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block mb-1">Item Name:</label>
           <input
             type="text"
-            className="w-full px-4 py-2 rounded-md border"
+            className="w-full px-4 py-2 rounded-md"
             value={itemName}
             onChange={(e) => setItemName(e.target.value)}
             required
@@ -93,7 +93,7 @@ const CreateAuctionPage: React.FC = () => {
         <div>
           <label className="block mb-1">Item Description:</label>
           <textarea
-            className="w-full px-4 py-2 rounded-md border"
+            className="w-full px-4 py-2 rounded-md"
             value={itemDescription}
             onChange={(e) => setItemDescription(e.target.value)}
             required
@@ -103,7 +103,7 @@ const CreateAuctionPage: React.FC = () => {
           <label className="block mb-1">Bidding Time (minutes):</label>
           <input
             type="number"
-            className="w-full px-4 py-2 rounded-md border"
+            className="w-full px-4 py-2 rounded-md"
             value={biddingTime}
             onChange={(e) => setBiddingTime(e.target.value)}
             required
@@ -114,7 +114,7 @@ const CreateAuctionPage: React.FC = () => {
           <input
             type="file"
             onChange={(e) => e.target.files && setImage(e.target.files[0])}
-            className="block w-full text-sm text-white mb-2"
+            className="mt-4 mb-4 block w-full text-sm text-white mb-2"
             required
           />
           <button

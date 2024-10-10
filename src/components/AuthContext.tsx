@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "../config/firebaseconfig"; // Adjust the path
 import { onAuthStateChanged, User } from "firebase/auth";
+import LoadingScreen from "./LoadingScreen";
 
 interface AuthContextProps {
   currentUser: User | null;
@@ -29,7 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   if (loading) {
     // Optionally render a loading indicator
-    return <div>Loading...</div>;
+    <LoadingScreen/>;
   }
 
   return (
