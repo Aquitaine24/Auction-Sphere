@@ -12,12 +12,14 @@ import {
 } from "firebase/firestore";
 import { firestore, auth } from "../config/firebaseconfig";
 import { useParams } from "react-router-dom";
+import LoadingSpinner from "./LoadingSpinner";
 
 const ChatBox: React.FC = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
   const [otherParticipant, setOtherParticipant] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (conversationId) {
@@ -35,6 +37,7 @@ const ChatBox: React.FC = () => {
         });
 
         setMessages(msgs);
+        setLoading(false); // Set loading to false after fetching messages
       });
 
       // Fetch the conversation document to get participants
@@ -91,7 +94,9 @@ const ChatBox: React.FC = () => {
         Conversation with: {otherParticipant || "Loading..."}
       </h2>
       <div className="chat-box overflow-y-auto max-h-[400px] mb-4 flex flex-col">
-        {messages.length > 0 ? (
+        {loading ? (
+          <p className="text-white flex justify-center items-center h-full"><LoadingSpinner /></p> 
+        ) : messages.length > 0 ? (
           messages.map((message) => (
             <div
               key={message.id}
@@ -104,7 +109,7 @@ const ChatBox: React.FC = () => {
             </div>
           ))
         ) : (
-          <p>No messages to display.</p>
+          <p className="text-white text-center">No messages to display.</p>
         )}
       </div>
 
@@ -122,7 +127,6 @@ const ChatBox: React.FC = () => {
         >
           Send
         </button>
-
       </div>
     </div>
   );

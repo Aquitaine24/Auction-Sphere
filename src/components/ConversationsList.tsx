@@ -3,10 +3,12 @@ import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { firestore } from "../config/firebaseconfig";
 import { Link } from "react-router-dom";
 import { ethers } from "ethers";
+import LoadingSpinner from "./LoadingSpinner";
 
 const ConversationsList: React.FC = () => {
   const [conversations, setConversations] = useState<any[]>([]);
   const [userEthAddress, setUserEthAddress] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchEthAddress = async () => {
@@ -43,16 +45,24 @@ const ConversationsList: React.FC = () => {
         });
         console.log("Fetched conversations:", convs); // Debugging log
         setConversations(convs);
+        setLoading(false);
       });
 
-      return () => unsubscribeConversations();
+      return () => {
+        unsubscribeConversations();
+        setLoading(false);
+      }
     }
   }, [userEthAddress]);
 
   return (
     <div className="conversations-container max-w-7xl mx-auto py-8">
       <h2 className="text-3xl font-bold mb-4">Your Conversations</h2>
-      {conversations.length > 0 ? (
+      {loading ? (
+        <p className="text-white flex justify-center items-center h-full">
+          <LoadingSpinner /> {/* Add your loading spinner here */}
+        </p>
+      ) : conversations.length > 0 ? (
         conversations.map((conv) => (
           <Link
             key={conv.id}
@@ -65,8 +75,8 @@ const ConversationsList: React.FC = () => {
                 .filter(
                   (participantId: string) => participantId !== userEthAddress
                 )
-                .join(", ")) === '' 
-                ? 'Yourself' 
+                .join(", ")) === ''
+                ? 'Yourself'
                 : (conv.participants
                   .filter(
                     (participantId: string) => participantId !== userEthAddress
