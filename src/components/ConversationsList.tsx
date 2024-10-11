@@ -50,22 +50,28 @@ const ConversationsList: React.FC = () => {
   }, [userEthAddress]);
 
   return (
-    <div className="conversations-container p-4">
-      <h2 className="text-2xl font-bold mb-4">Your Conversations</h2>
+    <div className="conversations-container max-w-7xl mx-auto py-8">
+      <h2 className="text-3xl font-bold mb-4">Your Conversations</h2>
       {conversations.length > 0 ? (
         conversations.map((conv) => (
           <Link
             key={conv.id}
             to={`/chat/${conv.id}`}
-            className="conversation-link block mb-3 p-3 border rounded hover:bg-gray-100"
+            className="conversation-link block mb-3 p-6 rounded bg-gray-800 hover:bg-gray-700"
           >
-            <p className="font-medium">
+            <p className="text-white">
               Conversation with:{" "}
-              {conv.participants
+              {(conv.participants
                 .filter(
                   (participantId: string) => participantId !== userEthAddress
                 )
-                .join(", ")}
+                .join(", ")) === '' 
+                ? 'Yourself' 
+                : (conv.participants
+                  .filter(
+                    (participantId: string) => participantId !== userEthAddress
+                  )
+                  .join(", "))}
             </p>
           </Link>
         ))

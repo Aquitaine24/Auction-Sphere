@@ -31,9 +31,7 @@ const CreateAuctionPage: React.FC = () => {
 
     uploadTask.on(
       "state_changed",
-      (snapshot) => {
-        // Handle upload progress if needed
-      },
+      null,
       (error) => {
         console.error("Error uploading image:", error);
         setImageLoading(false);
