@@ -12,6 +12,7 @@ import {
   where,
 } from "firebase/firestore";
 import { firestore } from "../config/firebaseconfig";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 interface AuctionDetails {
   itemName: string;
@@ -42,6 +43,12 @@ const AuctionPage: React.FC = () => {
     withdraw: false,
     endAuction: false,
   });
+  const [ isError, setIsError ] = useState<{ [key: string]: boolean }>({
+    placeBid: false,
+    withdraw: false,
+    endAuction: false,
+  });
+
   const [timeRemaining, setTimeRemaining] = useState<string>("Loading...");
   const [imageLoading, setImageLoading] = useState<boolean>(true);
 
@@ -106,6 +113,7 @@ const AuctionPage: React.FC = () => {
 
   const placeBid = async () => {
     setLoading({ ...loading, placeBid: true });
+    setIsError({ ...isError, placeBid: false });
     setMessage("");
 
     try {
@@ -122,6 +130,7 @@ const AuctionPage: React.FC = () => {
     } catch (error) {
       console.error(error);
       setMessage("Failed to place bid. Please try again.");
+      setIsError({ ...isError, placeBid: true });
     } finally {
       setLoading({ ...loading, placeBid: false });
     }
@@ -129,6 +138,7 @@ const AuctionPage: React.FC = () => {
 
   const withdrawFunds = async () => {
     setLoading({ ...loading, withdraw: true });
+    setIsError({ ...isError, withdraw: false });
     setMessage("");
 
     try {
@@ -142,6 +152,7 @@ const AuctionPage: React.FC = () => {
     } catch (error) {
       console.error(error);
       setMessage("Failed to withdraw funds. Please try again later");
+      setIsError({ ...isError, withdraw: true });
     } finally {
       setLoading({ ...loading, withdraw: false });
     }
@@ -149,6 +160,7 @@ const AuctionPage: React.FC = () => {
 
   const endAuction = async () => {
     setLoading({ ...loading, endAuction: true });
+    setIsError({ ...isError, endAuction: false });
     setMessage("");
 
     try {
@@ -174,6 +186,7 @@ const AuctionPage: React.FC = () => {
       setMessage(
         "Failed to end auction. Please make sure the auction has ended."
       );
+      setIsError({ ...isError, endAuction: true });
     } finally {
       setLoading({ ...loading, endAuction: false });
     }
@@ -220,26 +233,7 @@ const AuctionPage: React.FC = () => {
         {/* Image Section */}
         <div className="bg-gray-800 h-[520px] col-span-1 md:col-span-2 flex justify-center items-center rounded-lg shadow-lg overflow-hidden">
           {imageLoading ? (
-            <svg
-              className="animate-spin h-12 w-12 text-blue-500"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8H4z"
-              ></path>
-            </svg>
+            <LoadingSpinner/>
           ) : auction.imageurl ? (
             <img
               src={auction.imageurl}
@@ -324,7 +318,8 @@ const AuctionPage: React.FC = () => {
 
             {/* Message */}
             {message && (
-              <p className="mt-4 text-center text-gray-700">{message}</p>
+              <p className={`mt-4 text-center ${ isError.placeBid || isError.withdraw || isError.endAuction ? 
+                'text-red-500' : 'text-green-500' }`}>{message}</p>
             )}
           </div>
         </div>

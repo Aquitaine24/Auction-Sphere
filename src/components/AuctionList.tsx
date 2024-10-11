@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuctionContext } from "./AuctionContext";
 import LoadingScreen from "./LoadingScreen";
+import LoadingSpinner from "./LoadingSpinner";
 
 const AuctionList: React.FC = () => {
   const { auctions, timeRemaining, loading } = useContext(AuctionContext)!; // Use the context here
@@ -23,9 +24,11 @@ const AuctionList: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto py-8">
       <h2 className="text-3xl font-bold mb-6">Today's Live Auctions</h2>
-      {loading ? <p>Loading...</p>
-        : pastAuctions.length === 0 ? (
-          <p>No auctions available at the moment.</p>
+      {loading ? <p>
+        <LoadingSpinner />
+      </p>
+        : liveAuctions.length === 0 ? (
+          <p>No live auctions available at the moment.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {liveAuctions.map((auction) => ( // Generate Auction cards
@@ -53,9 +56,11 @@ const AuctionList: React.FC = () => {
           </div>
         )}
       <h2 className="mt-6 text-3xl font-bold mb-6">Past Auctions</h2>
-      {loading ? <p>Loading...</p>
+      {loading ? <p>
+        <LoadingSpinner />
+      </p>
         : pastAuctions.length === 0 ? (
-          <p>No auctions available at the moment.</p>
+          <p>No past auctions available.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {pastAuctions.map((auction) => ( // Generate Auction cards
@@ -72,8 +77,8 @@ const AuctionList: React.FC = () => {
                       className="w-full h-48 object-contain rounded-t-lg"
                     />
                   ) : <span className="text-gray-300">
-                      No Image Available
-                    </span>
+                    No Image Available
+                  </span>
                   }
                 </div>
 

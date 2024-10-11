@@ -60,7 +60,7 @@ export default function DashboardHeader() {
     {
       name: "Messages",
       href: "/conversations",
-      current: location.pathname === "/create",
+      current: location.pathname === "/conversations",
     },
   ];
 
