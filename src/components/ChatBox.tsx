@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   collection,
-  addDoc,
   query,
   where,
   onSnapshot,
@@ -9,21 +8,96 @@ import {
   serverTimestamp,
   doc,
   getDoc,
+  addDoc,
+  getDocs,
 } from "firebase/firestore";
 import { firestore, auth } from "../config/firebaseconfig";
 import { useParams } from "react-router-dom";
 import LoadingSpinner from "./LoadingSpinner";
+import { ethers } from "ethers";
 
 const ChatBox: React.FC = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
-  const [otherParticipant, setOtherParticipant] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const [otherParticipantName, setOtherParticipantName] = useState<string>("");
+  const [userEthAddress, setUserEthAddress] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch the current user's Ethereum address
+    const fetchEthAddress = async () => {
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
+          const checksumAddress = ethers.getAddress(accounts[0]);
+          setUserEthAddress(checksumAddress);
+          console.log("User Ethereum Address:", checksumAddress);
+        } catch (error) {
+          console.error("Error fetching Ethereum address:", error);
+        }
+      } else {
+        console.error("MetaMask is not installed.");
+      }
+    };
+
+    fetchEthAddress();
+  }, []);
+
+  useEffect(() => {
+    const fetchConversationDetails = async () => {
+      if (conversationId && userEthAddress) {
+        // Fetch the conversation document by its ID
+        const conversationDoc = await getDoc(doc(firestore, "conversations", conversationId));
+
+        if (conversationDoc.exists()) {
+          const conversationData = conversationDoc.data();
+          console.log("Conversation Data:", conversationData);
+
+          const otherParticipant = conversationData.participants.find(
+            (address: string) => address !== userEthAddress
+          );
+
+          if (otherParticipant) {
+            console.log("Other participant address:", otherParticipant);
+
+            // Query the "users" collection for the user with the matching walletAddress
+            const usersQuery = query(
+              collection(firestore, "users"),
+              where("walletAddress", "==", otherParticipant)
+            );
+
+            const querySnapshot = await getDocs(usersQuery);
+
+            if (!querySnapshot.empty) {
+              const userDoc = querySnapshot.docs[0];
+              const userData = userDoc.data();
+
+              setOtherParticipantName(userData.name || "Unknown User");
+              console.log("Other participant name:", userData.name); // Debugging log
+            } else {
+              setOtherParticipantName("Unknown User");
+              console.error("No user found with wallet address:", otherParticipant);
+            }
+          } else {
+            // If no other participant, the user is chatting with themselves
+            setOtherParticipantName("Yourself");
+          }
+        } else {
+          console.error("Conversation document does not exist.");
+        }
+      }
+    };
+
+    if (conversationId && userEthAddress) {
+      fetchConversationDetails();
+    }
+  }, [conversationId, userEthAddress]);
 
   useEffect(() => {
     if (conversationId) {
-      // Fetch messages for the conversation
       const q = query(
         collection(firestore, "messages"),
         where("conversationId", "==", conversationId),
@@ -37,32 +111,8 @@ const ChatBox: React.FC = () => {
         });
 
         setMessages(msgs);
-        setLoading(false); // Set loading to false after fetching messages
+        setLoading(false);
       });
-
-      // Fetch the conversation document to get participants
-      const fetchConversation = async () => {
-        try {
-          const conversationRef = doc(firestore, "conversations", conversationId);
-          const conversationDoc = await getDoc(conversationRef);
-
-          if (conversationDoc.exists()) {
-            const conversationData = conversationDoc.data();
-            const participants = conversationData?.participants || [];
-
-            // Filter out the current user's address (auth.currentUser?.uid)
-            const otherParticipantAddress = participants.find(
-              (participantId: string) => participantId !== auth.currentUser?.uid
-            );
-
-            setOtherParticipant(otherParticipantAddress || "Unknown Participant");
-          }
-        } catch (error) {
-          console.error("Error fetching conversation:", error);
-        }
-      };
-
-      fetchConversation();
 
       return () => unsubscribe();
     }
@@ -89,20 +139,21 @@ const ChatBox: React.FC = () => {
 
   return (
     <div className="chat-container bg-gray-800 max-w-7xl mx-auto rounded-lg p-8">
-      {/* Display the other participant's address */}
       <h2 className="text-white font-bold text-2xl mb-4">
-        Conversation with: {otherParticipant || "Loading..."}
+        Conversation with: {otherParticipantName || "Loading..."}
       </h2>
       <div className="chat-box overflow-y-auto max-h-[400px] mb-4 flex flex-col">
         {loading ? (
-          <p className="text-white flex justify-center items-center h-full"><LoadingSpinner /></p> 
+          <p className="text-white flex justify-center items-center h-full">
+            <LoadingSpinner />
+          </p>
         ) : messages.length > 0 ? (
           messages.map((message) => (
             <div
               key={message.id}
               className={`p-2 rounded-lg mb-2 inline-block max-w-xs break-words ${message.senderId === auth.currentUser?.uid
-                ? "my-message bg-blue-500 ml-auto" // Add ml-auto for alignment
-                : "other-message bg-gray-300"
+                ? "my-message bg-blue-500 ml-auto"
+                : "other-message bg-gray-600"
                 }`}
             >
               {message.content}
