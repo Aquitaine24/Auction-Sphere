@@ -36,6 +36,7 @@ const AuctionPage: React.FC = () => {
     auctionEndTime: 0,
     sellerId: "",
   });
+  const [highestBidderName, setHighestBidderName] = useState<string>("");
   const [bidAmount, setBidAmount] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [loading, setLoading] = useState<{ [key: string]: boolean }>({
@@ -78,6 +79,25 @@ const AuctionPage: React.FC = () => {
             auctionEndTime,
             sellerId,
           });
+
+          // Fetch the highest bidder's name
+          if (highestBidder !== "0x0000000000000000000000000000000000000000") { //dont fetch name if no highestBidder
+            const userQuery = query(
+              collection(firestore, "users"),
+              where("walletAddress", "==", highestBidder)
+            );
+            const userSnapshot = await getDocs(userQuery);
+
+            if (!userSnapshot.empty) {
+              const userData = userSnapshot.docs[0].data();
+              setHighestBidderName(userData.name);
+            } else {
+              setHighestBidderName("Unknown User");
+            }
+          } else {
+            setHighestBidderName("");
+            console.error("No highest bidder")
+          }
         } catch (error) {
           console.error(error);
         } finally {
@@ -270,14 +290,13 @@ const AuctionPage: React.FC = () => {
               Highest Bid:{" "}
               <span className="text-blue-600">{auction.highestBid} ETH</span>
             </p>
-            {auction.highestBidder !==
-            "0x0000000000000000000000000000000000000000" ? (
-              <p className="text-sm font-semibold mb-4">
+            {highestBidderName !== '' ? (
+              <p className="text-lg font-semibold mb-4">
                 Highest Bidder:{" "}
-                <span className="text-blue-600">{auction.highestBidder}</span>
+                <span className="text-blue-600">{highestBidderName}</span>
               </p>
             ) : (
-              <p className="text-sm font-semibold mb-4">No bids made yet</p>
+              <p className="text-lg font-semibold mb-4">No bids made yet</p>
             )}
 
             {/* Bid Input */}
