@@ -13,6 +13,8 @@ import {
 } from "firebase/firestore";
 import { firestore } from "../config/firebaseconfig";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { getAuth } from "firebase/auth";
+import BidHistory from "../components/BidHistory";
 
 interface AuctionDetails {
   itemName: string;
@@ -44,7 +46,7 @@ const AuctionPage: React.FC = () => {
     withdraw: false,
     endAuction: false,
   });
-  const [ isError, setIsError ] = useState<{ [key: string]: boolean }>({
+  const [isError, setIsError] = useState<{ [key: string]: boolean }>({
     placeBid: false,
     withdraw: false,
     endAuction: false,
@@ -145,6 +147,23 @@ const AuctionPage: React.FC = () => {
         gasLimit: 3000000,
       });
       await tx.wait();
+
+      // Get current user from Firebase Authentication
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      if (!currentUser) throw new Error("User not authenticated");
+
+      // Create bid data
+      const bidData = {
+        auctionId: address, // Assuming 'address' is the auction ID
+        bidAmount: parseFloat(bidAmount),
+        bidderUid: currentUser.uid, // Store Firebase UID as bidderUid
+        bidderName: currentUser.displayName,
+        createdAt: new Date(),
+      };
+
+      const bidsCollection = collection(firestore, "bids");
+      await addDoc(bidsCollection, bidData);
 
       setMessage("Bid successfully placed!");
     } catch (error) {
@@ -253,7 +272,7 @@ const AuctionPage: React.FC = () => {
         {/* Image Section */}
         <div className="bg-gray-800 h-[520px] col-span-1 md:col-span-2 flex justify-center items-center rounded-lg shadow-lg overflow-hidden">
           {imageLoading ? (
-            <LoadingSpinner/>
+            <LoadingSpinner />
           ) : auction.imageurl ? (
             <img
               src={auction.imageurl}
@@ -291,10 +310,13 @@ const AuctionPage: React.FC = () => {
               <span className="text-blue-600">{auction.highestBid} ETH</span>
             </p>
             {highestBidderName !== '' ? (
-              <p className="text-lg font-semibold mb-4">
-                Highest Bidder:{" "}
-                <span className="text-blue-600">{highestBidderName}</span>
-              </p>
+              <>
+                <p className="text-lg font-semibold mb-2">
+                  Highest Bidder:{" "}
+                  <span className="text-blue-600">{highestBidderName}</span>
+                </p>
+                <BidHistory auctionId={address as string}/>
+              </>
             ) : (
               <p className="text-lg font-semibold mb-4">No bids made yet</p>
             )}
@@ -337,8 +359,8 @@ const AuctionPage: React.FC = () => {
 
             {/* Message */}
             {message && (
-              <p className={`mt-4 text-center ${ isError.placeBid || isError.withdraw || isError.endAuction ? 
-                'text-red-500' : 'text-green-500' }`}>{message}</p>
+              <p className={`mt-4 text-center ${isError.placeBid || isError.withdraw || isError.endAuction ?
+                'text-red-500' : 'text-green-500'}`}>{message}</p>
             )}
           </div>
         </div>
