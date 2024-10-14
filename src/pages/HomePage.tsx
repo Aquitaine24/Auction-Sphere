@@ -1,10 +1,11 @@
 // HomePage.tsx
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const HomePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -12,8 +13,8 @@ const HomePage: React.FC = () => {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Redirect to search results page or perform search logic here
-    console.log("Search submitted: ", searchQuery);
+    // Navigate to the search results page with the query as a parameter
+    navigate(`/auctions?search=${encodeURIComponent(searchQuery)}`);
   };
 
   return (
