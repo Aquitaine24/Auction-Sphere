@@ -10,9 +10,9 @@ const HomePage: React.FC = () => {
       <main className="flex flex-col items-center justify-center py-20 px-4">
         <h1 className="text-4xl font-bold mb-6">Welcome to Auction Sphere</h1>
         <p className="text-lg mb-8 text-center max-w-2xl">
-          This is a simple home page matching the theme of your application. Use
-          this area to highlight key features or provide introductory
-          information.
+          Welcome to Auction Sphere, your trusted platform for secure, transparent, and fair online auctions.
+          Explore live auctions, bid confidently, or start selling your own items with ease. Whether you’re buying or selling,
+          Auction Sphere ensures a seamless and trustworthy experience powered by blockchain technology.
         </p>
         <div className="space-x-4">
           <Link
